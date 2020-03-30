@@ -33,31 +33,35 @@
 struct archive;
 struct archive_entry;
 
-namespace moor
-{
-  class MOOR_API ArchiveReader
-  {
-  public:
-    ArchiveReader(const std::string& _archive_file_name);
-    ArchiveReader(unsigned char*_in_buffer, const size_t _size);
-    ArchiveReader(std::vector<unsigned char>&& _in_buffer);
-    ~ArchiveReader();
+namespace moor {
+    class MOOR_API ArchiveReader {
+    public:
+        explicit ArchiveReader(const std::string &_archive_file_name);
 
-    //returns FALSE at EOF
-    bool ExtractNext (const std::string& _root_path);
-    //retuns empty filename at EOF
-    std::pair<std::string, std::vector<unsigned char>> ExtractNext();
+        ArchiveReader(unsigned char *_in_buffer, size_t _size);
 
-  private:
-    void init();
-    void checkError(const int _err_code, const bool _close_before_throw=false);
-    void close();
+        explicit ArchiveReader(std::vector<unsigned char> &&_in_buffer);
 
-    archive* m_archive;
-    bool m_open;
+        ~ArchiveReader();
 
-    const std::string m_archive_file_name;
-    std::vector<unsigned char> m_in_buffer;
-  };
+        //returns FALSE at EOF
+        bool ExtractNext(const std::string &_root_path);
+
+        //return empty filename at EOF
+        std::pair<std::string, std::vector<unsigned char>> ExtractNext();
+
+    private:
+        void init();
+
+        void checkError(int _err_code, bool _close_before_throw = false);
+
+        void close();
+
+        archive *m_archive;
+        bool m_open;
+
+        const std::string m_archive_file_name;
+        std::vector<unsigned char> m_in_buffer;
+    };
 }
 

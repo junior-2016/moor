@@ -1,0 +1,1 @@
+/usr/bin/c++ -fPIC -g  -shared -Wl,-soname,libmoor.so -o libmoor.so CMakeFiles/moor.dir/archive_writer.cpp.o CMakeFiles/moor.dir/archive_reader.cpp.o CMakeFiles/moor.dir/memory_writer_callback.cpp.o -larchive 

@@ -1,0 +1,2 @@
+/usr/bin/ar qc libmoor.a  CMakeFiles/moor_static.dir/archive_writer.cpp.o CMakeFiles/moor_static.dir/archive_reader.cpp.o CMakeFiles/moor_static.dir/memory_writer_callback.cpp.o
+/usr/bin/ranlib libmoor.a

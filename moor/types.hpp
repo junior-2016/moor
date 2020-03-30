@@ -24,30 +24,37 @@
 
 #pragma once
 
-namespace moor
-{
-  enum Formats
-  {
-    Format_pax = 0,
-    Format_tar = 1,
-    Format_ZIP = 2,
-    Format_7Zip = 3
-  };
+namespace moor {
+    enum Formats {
+        Format_pax = 0,
+        Format_tar = 1,
+        Format_ZIP = 2,
+        Format_7Zip = 3
+    };
 
-  enum Compressions
-  {
-    Compression_none = 0,
-    Compression_gzip = 1,
-    Compression_bzip2 = 2,
-    Compression_lzma = 3
-  };
+    enum Filter {
+        Filter_none = 0,
+        Filter_gzip = 1,
+        Filter_bzip2 = 2,
+        Filter_lzma = 3,
+        Filter_xz = 4,
+        Filter_lz4 = 5
+    };
 
-  enum FileTypes
-  {
-    FileType_Regular = 0,
-    FileType_Directory = 1
-  };
+    enum FileTypes {
+        FileType_Regular = 0,
+        FileType_Directory = 1
+    };
 
-  const char* const FORMAT_COMPRESSION_7ZIP = "compression";
-  const char* const FORMAT_COMPRESSION_7ZIP_STORE = "store";
+    constexpr char FORMAT_7ZIP_COMPRESSION_LEVEL_OPTION_NAME[] = "compression-level"; // use 0-9 to set compression-level
+    constexpr char FORMAT_7ZIP_COMPRESSION_OPTION_NAME[] = "compression";
+    constexpr char FORMAT_7ZIP_COMPRESSION_STORE[] = "store"; // no compression
+    constexpr char FORMAT_7ZIP_COMPRESSION_LZMA1[] = "lzma1";
+    constexpr char FORMAT_7ZIP_COMPRESSION_LZMA2[] = "lzma2";
+    constexpr char FORMAT_7ZIP_COMPRESSION_PPMD[] = "ppmd";
+    constexpr char FORMAT_7ZIP_COMPRESSION_DEFLATE[] = "deflate";
+    constexpr char FORMAT_7ZIP_COMPRESSION_BZIP2[] = "bzip2";    // bwt algorithm
+
+    constexpr char FILTER_XZ_COMPRESSION_LEVEL_OPTION_NAME[] = "compression-level"; // use 0-9
+    constexpr char FILTER_XZ_THREADS_OPTION_NAME [] = "threads"; // n threads
 }

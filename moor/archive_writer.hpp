@@ -27,6 +27,7 @@
 #include <string>
 #include <iterator>
 #include <list>
+#include <vector>
 
 #include "moor_build_config.hpp"
 #include "types.hpp"
@@ -34,68 +35,68 @@
 struct archive;
 struct archive_entry;
 
-namespace moor
-{
-  class MOOR_API ArchiveWriter
-  {
-  public:
-    //deprecated
-    ArchiveWriter(const std::string& _archive_file_name, const Formats& _format,
-                  const Compressions& _compression);
-    //deprecated
-    ArchiveWriter(std::list<unsigned char>& _out_buffer, const Formats& _format,
-        const Compressions& _compression);
-    //deprecated
-    ArchiveWriter(unsigned char * _out_buffer, size_t* _size
-      , const Formats& _format, const Compressions& _compression);
-    ArchiveWriter(const Formats& _format, const Compressions& _compression);
-    void Open(const std::string& _archive_file_name);
-    void Open(std::list<unsigned char>& _out_buffer);
-    void Open(unsigned char * _out_buffer, size_t* _size);
-    ~ArchiveWriter();
+namespace moor {
+    class MOOR_API ArchiveWriter {
+    public:
+        explicit ArchiveWriter(const Formats &_format, const Filter &_filter = Filter::Filter_none);
 
-    void SetFormatOption(const std::string& _option, const std::string& _value);
+        void Open(const std::string &_archive_file_name);
 
-    void AddFile (const std::string& _file_path, const std::string& _entry_name="");
+        void Open(std::vector<unsigned char> &_out_buffer);
 
-    template <class Iter>
-    void AddFile (const std::string& _entry_name, const Iter _entry_contents_begin
-        , const Iter _entry_contents_end, long long _size = -1);
-    void AddFile (const std::string& _entry_name, const unsigned char * _data
-      , const unsigned long long _size);
-    void AddDirectory(const std::string& _directory_name);
-    void Close();
+        void Open(unsigned char *_out_buffer, size_t *_size);
 
-  private:
-    void checkError(const int _err_code, const bool _close_before_throw = false);
-    void addHeader(const std::string& _entry_name, const FileTypes _entry_type,
-                   const long long _size = 0, const int _permission = 0644);
-    void addHeader(const std::string& _file_path, const std::string& _entry_name="");
-    void addContent(const char _byte);
-    void addContent(const char* _bytes, const unsigned long long _size);
-    void addFinish();
+        ~ArchiveWriter();
 
-    bool m_open;
-    archive* m_archive;
-    archive_entry* m_entry;
+        void SetFormatOption(const std::string &_option, const std::string &_value);
 
-    const std::string m_archive_file_name;
-    //std::list<unsigned char>* m_out_buffer;
-    const Formats m_format;
-    const Compressions m_compression;
-  };
+        void SetFilterOption(const std::string &_option, const std::string &_value);
 
-  template <class Iter>
-  void ArchiveWriter::AddFile (const std::string& _entry_name
-      , const Iter _entry_contents_begin, const Iter _entry_contents_end
-      , long long _size)
-  {
-    long long size = _size > -1 ? _size :
-        std::distance(_entry_contents_begin, _entry_contents_end);
-    addHeader(_entry_name, FileType_Regular, size);
-    for (Iter it = _entry_contents_begin; it != _entry_contents_end; it++)
-      addContent(*it);
-    addFinish();
-  }
+        void AddFile(const std::string &_file_path, const std::string &_entry_name = "");
+
+        template<class Iter>
+        void AddFile(const std::string &_entry_name, Iter _entry_contents_begin, Iter _entry_contents_end,
+                     long long _size = -1);
+
+        void AddFile(const std::string &_entry_name, const unsigned char *_data, unsigned long long _size);
+
+        void AddDirectory(const std::string &_directory_name);
+
+        void Close();
+
+    private:
+        void checkError(int _err_code, bool _close_before_throw = false);
+
+        void addHeader(const std::string &_entry_name, FileTypes _entry_type,
+                       long long _size = 0, int _permission = 0644);
+
+        void addHeader(const std::string &_file_path, const std::string &_entry_name = "");
+
+        void addContent(char _byte);
+
+        void addContent(const char *_bytes, unsigned long long _size);
+
+        void addFinish();
+
+        bool m_open;
+        archive *m_archive;
+        archive_entry *m_entry;
+
+        const std::string m_archive_file_name;
+        //std::list<unsigned char>* m_out_buffer;
+        const Formats m_format;
+        const Filter m_filter;
+    };
+
+    template<class Iter>
+    void ArchiveWriter::AddFile(const std::string &_entry_name, const Iter _entry_contents_begin,
+                                const Iter _entry_contents_end, long long _size) {
+        long long size = _size > -1 ? _size :
+                         std::distance(_entry_contents_begin, _entry_contents_end);
+        addHeader(_entry_name, FileType_Regular, size);
+        for (Iter it = _entry_contents_begin; it != _entry_contents_end; it++)
+            addContent(*it);
+        addFinish();
+    }
 
 }

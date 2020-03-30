@@ -25,25 +25,23 @@
 #pragma once
 
 #include <functional>
+#include <utility>
 
-namespace moor
-{
-  class ScopeExit
-  {
-  public:
-    ScopeExit(std::function<void(void)> _on_exit)
-      : m_on_exit(_on_exit) {}
-    ~ScopeExit()
-    {
-      try
-      {
-        if (m_on_exit)
-          m_on_exit();
-      }
-      catch (...) {}
-    }
+namespace moor {
+    class ScopeExit {
+    public:
+        explicit ScopeExit(std::function<void(void)> _on_exit)
+                : m_on_exit(std::move(_on_exit)) {}
 
-  private:
-    std::function<void(void)> m_on_exit;
-  };  
+        ~ScopeExit() {
+            try {
+                if (m_on_exit)
+                    m_on_exit();
+            }
+            catch (...) {}
+        }
+
+    private:
+        std::function<void(void)> m_on_exit;
+    };
 }

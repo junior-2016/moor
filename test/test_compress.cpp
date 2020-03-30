@@ -28,57 +28,64 @@
 #include <vector>
 #include <iostream>
 #include <fstream>
+
 using namespace moor;
 
-int main()
-{
-  std::list<unsigned char> lout;
-  //ArchiveWriter compressor("test1.tar.gz", Format_pax, Compression_gzip);
-  //ArchiveWriter compressor(lout, Format_pax, Compression_gzip);
-  ArchiveWriter compressor(Format_7Zip, Compression_none);
-  //compressor.AddFile("ttt1");
-  //compressor.AddFile("ttt/test_compress");
-  compressor.SetFormatOption(FORMAT_COMPRESSION_7ZIP, FORMAT_COMPRESSION_7ZIP_STORE);
-  compressor.Open(lout);
-  compressor.AddFile("test_compress");
-  compressor.AddDirectory("mem_dir");
-  char a[] = {64, 65, 66, 67, 68};
-  std::list<char> l(10, 'A');
-  std::vector<char> v(10, 'B');
+int main() {
+    std::vector<unsigned char> lout;
+    //ArchiveWriter compressor("test1.tar.gz", Format_pax, Compression_gzip);
+    //ArchiveWriter compressor(lout, Format_pax, Compression_gzip);
 
-  compressor.AddFile("mem_dir/array", a, a+10);
-  compressor.AddFile("list", l.begin(), l.end());
-  compressor.AddFile("vector", v.begin(), v.end());
+    // when use 7z format, don't use any filter(compression method can set by format option)
+    // ArchiveWriter compressor(Formats::Format_7Zip); // 7z
+    ArchiveWriter compressor(Formats::Format_tar, Filter::Filter_xz); // tar.xz
+
+    //compressor.AddFile("ttt1");
+    //compressor.AddFile("ttt/test_compress");
+
+//    compressor.SetFormatOption(FORMAT_7ZIP_COMPRESSION_OPTION_NAME, FORMAT_7ZIP_COMPRESSION_LZMA2);
+//    compressor.SetFormatOption(FORMAT_7ZIP_COMPRESSION_LEVEL_OPTION_NAME, std::to_string(9));
+
+    compressor.SetFilterOption(FILTER_XZ_COMPRESSION_LEVEL_OPTION_NAME,std::to_string(9));
+    compressor.SetFilterOption(FILTER_XZ_THREADS_OPTION_NAME, std::to_string(4)); // 4 threads
+
+    compressor.Open(lout);
+    compressor.AddFile("test_compress");
+    compressor.AddDirectory("mem_dir");
+    char a[] = {64, 65, 66, 67, 68};
+    std::list<char> l(10, 'A');
+    std::vector<char> v(10, 'B');
+
+    compressor.AddFile("mem_dir/array", a, a + 10);
+    compressor.AddFile("list", l.begin(), l.end());
+    compressor.AddFile("vector", v.begin(), v.end());
 
 
-  compressor.Close();
-  std::ofstream of("test2.tar.gz", std::ios::binary);
-  for (auto a = lout.begin(); a != lout.end(); a++)
-    of << *a;
-  of.close();
+    compressor.Close();
+    std::ofstream of("test.tar.xz", std::ios::binary);
+    for (unsigned char &ch : lout) of << ch;
+    of.close();
 
-  ArchiveReader reader1("test2.tar.gz");
-  std::ifstream iff ("test2.tar.gz", std::ios::binary);
-  iff.seekg(0, std::ios::end);
-  auto size = iff.tellg();
-  iff.seekg(0, std::ios::beg);
-  std::vector<unsigned char> ff(size);
+    ArchiveReader reader1("test.tar.xz");
+    std::ifstream iff("test.tar.xz", std::ios::binary);
+    iff.seekg(0, std::ios::end);
+    auto size = iff.tellg();
+    iff.seekg(0, std::ios::beg);
+    std::vector<unsigned char> ff(size);
 
-  while(iff.good())
-    iff.read((char*)&*ff.begin(), size);
-  ArchiveReader reader(std::move(ff));
-  auto data = reader.ExtractNext();
-  while(data.first.length() > 0)
-  {
-    std::cout << data.first << " : " << data.second.size()<< std::endl;
-    data = reader.ExtractNext();
-  }
-  data = reader1.ExtractNext();
-  while(data.first.length() > 0)
-  {
-    std::cout << data.first << " : " << data.second.size()<< std::endl;
+    while (iff.good())
+        iff.read((char *) &*ff.begin(), size);
+    ArchiveReader reader(std::move(ff));
+    auto data = reader.ExtractNext();
+    while (data.first.length() > 0) {
+        std::cout << data.first << " : " << data.second.size() << std::endl;
+        data = reader.ExtractNext();
+    }
     data = reader1.ExtractNext();
-  }
+    while (data.first.length() > 0) {
+        std::cout << data.first << " : " << data.second.size() << std::endl;
+        data = reader1.ExtractNext();
+    }
 
-  return 0;
+    return 0;
 }
